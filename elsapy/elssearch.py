@@ -25,6 +25,7 @@ class ElsSearch():
         """Initializes a search object with a query and target index."""
         self.query = query
         self.index = index
+        self.count = 0
         self._cursor_supported = (index in self._cursored_indexes)
         self._uri = self._base_url + self.index + '?query=' + url_encode(
                 self.query)
@@ -82,6 +83,8 @@ class ElsSearch():
             pagination."""
         if self._cursor_supported:
             return False
+        elif self.num_res >= self.count:
+            return True
         else:
             return self.num_res >= 5000
 
@@ -100,6 +103,9 @@ class ElsSearch():
             get_all = True, multiple API calls will be made to iteratively get 
             all results for the search, up to a maximum of 5,000."""
         ## TODO: add exception handling
+        
+        self.count = count
+        
         url = self._uri
         if use_cursor:
             url += "&cursor=*"
